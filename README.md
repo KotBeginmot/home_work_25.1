@@ -1,1 +1,1 @@
-# home_work_25.1 b 25.2
+# home_work_25.1 и25.2
