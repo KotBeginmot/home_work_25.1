@@ -4,6 +4,7 @@ from course.models import NULLABLE
 
 
 class Lesson(models.Model):
+    objects = None
     course = models.ForeignKey('course.Course', on_delete=models.CASCADE, verbose_name='курс', **NULLABLE,
                                )
     name = models.CharField(max_length=30, verbose_name='название')

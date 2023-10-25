@@ -13,9 +13,8 @@ class User(AbstractUser):
     avatar = models.ImageField(upload_to='users/', **NULLABLE)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
-    course = models.ManyToManyField('course.Course', verbose_name='курсы студента', **NULLABLE,
-                               )
-    lesson = models.ManyToManyField('lesson.Lesson', verbose_name='уроки студента', **NULLABLE)
+    course = models.ManyToManyField('course.Course', verbose_name='курсы студента', blank=True)
+    lesson = models.ManyToManyField('lesson.Lesson', verbose_name='уроки студента', blank=True)
 
     def __str__(self):
         return f'{self.email}, {self.user_phone}'

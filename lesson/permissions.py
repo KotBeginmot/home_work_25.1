@@ -3,11 +3,11 @@ from rest_framework.permissions import BasePermission
 
 class StaffPermission(BasePermission):
     def has_permission(self, request, view):
-
-        if request.user.is_staff and view.action in ['create', 'destroy']:
+        if request.user.is_superuser:
+            return True
+        if request.user.is_staff and request.method in ['POST', 'DELETE']:
             return False
         return True
-
 
 
 class ObjPermission(BasePermission):
@@ -18,4 +18,3 @@ class ObjPermission(BasePermission):
         else:
             return True
         return False
-

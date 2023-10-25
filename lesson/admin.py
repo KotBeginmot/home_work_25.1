@@ -5,4 +5,4 @@ from lesson.models import Lesson
 
 @admin.register(Lesson)
 class PaymentsAdmin(admin.ModelAdmin):
-    list_display = ['course', 'name', 'description', 'video_link']
+    list_display = ['course','id', 'name', 'description', 'video_link']

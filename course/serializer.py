@@ -1,16 +1,20 @@
 from rest_framework import serializers
 
-from course.models import Course, Payments
-from lesson.models import Lesson
+from course.models import Course, Payments, Subscription
+from course.services import user_check
 from lesson.serializer import LessonSerializer
 
 
 class CourseSerializer(serializers.ModelSerializer):
-    lessons = LessonSerializer(source='lesson_set', many=True)
+    lessons = LessonSerializer(source='lesson_set', many=True, read_only=True)
     lessons_count = serializers.SerializerMethodField()
+    subscription = serializers.SerializerMethodField()
+
     def get_lessons_count(self, instance):
         return instance.lesson_set.all().count()
 
+    def get_subscription(self, instance):
+        return user_check(self, instance)
 
     class Meta:
         model = Course
@@ -31,4 +35,25 @@ class CourseCreateSerializer(serializers.ModelSerializer):
 class PaymentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payments
+        fields = '__all__'
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(source='user.email', read_only=True)
+    course = serializers.CharField(source='course.name', read_only=True)
+
+    class Meta:
+        model = Subscription
+        fields = '__all__'
+
+
+class SubscriptionCreateSerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        if self.data['course'] in [i.course.id for i in Subscription.objects.all().filter(user=validated_data['user'])]:
+            raise serializers.ValidationError('Можно создать только одну подписку между пользователем и курсом')
+        self.subscription = Subscription.objects.create(**validated_data)
+        return self.subscription
+
+    class Meta:
+        model = Subscription
         fields = '__all__'
