@@ -1,10 +1,13 @@
+import os
+
+import stripe
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ViewSet, ModelViewSet
 from rest_framework.filters import OrderingFilter
 from course.models import Course, Payments, Subscription
 from course.permissions import StaffPermissionViewSet, SubscriptionPermission
 from course.serializer import CourseSerializer, CourseCreateSerializer, PaymentsSerializer, SubscriptionSerializer, \
-    SubscriptionCreateSerializer
+    SubscriptionCreateSerializer, PaymentCreateSerializer, PaymentDetailSerializer
 from lesson.paginations import MyPagination
 
 from lesson.permissions import ObjPermission
@@ -33,11 +36,31 @@ class CourseViewSet(ModelViewSet):
 
 class PaymentsViewSet(ModelViewSet):
     queryset = Payments.objects.all()
-    serializer_class = PaymentsSerializer
+    default_serializer = PaymentsSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     filterset_fields = ('lesson', 'course', 'payment_method')
     ordering_field = ('payment_date',)
     permission_classes = [StaffPermissionViewSet, ObjPermission]
+    serializers = {
+        'create': PaymentCreateSerializer,
+        "retrieve": PaymentDetailSerializer
+    }
+
+    def get_object(self):
+        stripe.api_key = os.getenv("API_KEY")
+        obj = super().get_object()
+        obj = Payments.objects.get(pk=self.kwargs.get("pk"))
+
+        retrieve_session = stripe.checkout.Session.retrieve(
+            obj.url_session,
+        )
+        if retrieve_session['payment_status'] == "paid":
+            obj.paid = True
+        obj.save()
+        return obj
+
+    def get_serializer_class(self):
+        return self.serializers.get(self.action, self.default_serializer)
 
 
 class SubscriptionAPIViewSet(ModelViewSet):

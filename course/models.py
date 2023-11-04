@@ -30,9 +30,11 @@ class Payments(models.Model):
     user = models.ForeignKey('users.User', on_delete=models.CASCADE, max_length=50, verbose_name='пользователь',
                              related_name='users_pay')
     payment_date = models.DateTimeField(auto_created=True, verbose_name="дата оплаты", **NULLABLE)
-    paid = models.BooleanField(verbose_name='оплаченный курс или урок', **NULLABLE)
+    paid = models.BooleanField(default=False, verbose_name='оплаченный курс или урок')
     payment_amount = models.BigIntegerField(verbose_name="сумма оплаты", **NULLABLE)
     payment_method = models.CharField(max_length=10, choices=method, **NULLABLE)
+    url = models.CharField(max_length=500, verbose_name='ссылка на оплату', default='не предоставлена')
+    url_session = models.CharField(max_length=150, **NULLABLE , verbose_name='session checkout id')
 
     def __str__(self):
         return f'{self.user} - {self.paid}'

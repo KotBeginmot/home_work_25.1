@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from course.models import Course, Payments, Subscription
-from course.services import user_check
+from course.services import user_check, stripe_work
 from lesson.serializer import LessonSerializer
 
 
@@ -33,6 +33,31 @@ class CourseCreateSerializer(serializers.ModelSerializer):
 
 
 class PaymentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payments
+        fields = '__all__'
+
+
+class PaymentCreateSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        obj = Payments.objects.create(**validated_data)
+        stripe_response = stripe_work(self, validated_data)
+        obj.url = stripe_response[0].get('url')
+        obj.url_session = stripe_response[2]
+        if stripe_response[1]['payment_status'] != "unpaid":
+            obj.paid = True
+        else:
+            obj.paid = False
+        obj.save()
+        return obj
+
+    class Meta:
+        model = Payments
+        fields = '__all__'
+
+
+class PaymentDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payments
         fields = '__all__'

@@ -10,7 +10,7 @@ from lesson.serializer import LessonSerializer, LessonCreateSerializer
 
 class LessonApiList(generics.ListAPIView):
     serializer_class = LessonSerializer
-    queryset = Lesson.objects.all()
+    # queryset = Lesson.objects.all()
     permission_classes = [StaffPermission]
     pagination_class = MyPagination
 
