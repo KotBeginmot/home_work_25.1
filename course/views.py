@@ -4,10 +4,14 @@ import stripe
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ViewSet, ModelViewSet
 from rest_framework.filters import OrderingFilter
+
+from config.services import set_check
+from config.tasks import user_activity
 from course.models import Course, Payments, Subscription
 from course.permissions import StaffPermissionViewSet, SubscriptionPermission
 from course.serializer import CourseSerializer, CourseCreateSerializer, PaymentsSerializer, SubscriptionSerializer, \
     SubscriptionCreateSerializer, PaymentCreateSerializer, PaymentDetailSerializer
+
 from lesson.paginations import MyPagination
 
 from lesson.permissions import ObjPermission

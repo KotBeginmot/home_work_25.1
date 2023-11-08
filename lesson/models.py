@@ -10,7 +10,7 @@ class Lesson(models.Model):
     description = models.TextField(verbose_name='описание')
     preview = models.ImageField(upload_to='lesson/', verbose_name='превью', **NULLABLE)
     video_link = models.URLField(max_length=50, verbose_name='ссылка на видео', **NULLABLE)
+    last_update = models.DateTimeField(auto_created=False, **NULLABLE)
 
     def __str__(self):
         return f'{self.name}'
-

@@ -1,7 +1,10 @@
+import datetime
+from urllib import response
+
 from rest_framework import generics
-from django.shortcuts import render
 from rest_framework.permissions import AllowAny
 
+from config.tasks import check_update
 from lesson.models import Lesson
 from lesson.paginations import MyPagination
 from lesson.permissions import StaffPermission, ObjPermission
@@ -31,6 +34,14 @@ class LessonApiUpdate(generics.UpdateAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = [StaffPermission, ObjPermission]
+
+    def get_object(self):
+        obj = Lesson.objects.get(pk=self.kwargs.get('pk'))
+        obj.last_update = datetime.datetime.now().replace(microsecond=False)
+
+        check_update.delay(obj.course.id, obj.name )
+        obj.save()
+        return obj
 
 
 class LessonApiRetrieve(generics.RetrieveAPIView):
